@@ -4,11 +4,38 @@ from datetime import datetime
 
 class UserBase(BaseModel):
     username: str
-    email: EmailStr
+    email: Optional[EmailStr] = None  # 邮箱改为可选
+    phone: str  # 添加手机号字段
     avatar: Optional[str] = None
 
 class UserCreate(UserBase):
-    password: str
+    password: Optional[str] = None  # 密码改为可选
+
+class UserCreateByPhone(BaseModel):
+    """通过手机号创建用户"""
+    username: str
+    phone: str
+    avatar: Optional[str] = None
+
+class SendCodeRequest(BaseModel):
+    """发送验证码请求"""
+    phone: str
+
+class VerifyCodeRequest(BaseModel):
+    """验证码登录请求"""
+    phone: str
+    code: str
+
+class SendCodeResponse(BaseModel):
+    """发送验证码响应"""
+    message: str
+    success: bool
+
+class LoginResponse(BaseModel):
+    """登录响应"""
+    user: 'UserOut'
+    token: Optional[str] = None  # 如果需要JWT token
+    message: str
 
 class UserOut(UserBase):
     id: int

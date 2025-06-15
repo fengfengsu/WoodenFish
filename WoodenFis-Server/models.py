@@ -7,13 +7,24 @@ class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
-    email = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
+    email = Column(String, unique=True, index=True, nullable=True)  # 邮箱改为可空
+    phone = Column(String, unique=True, index=True)  # 添加手机号字段
+    hashed_password = Column(String, nullable=True)  # 密码改为可空（验证码登录不需要密码）
     avatar = Column(String, nullable=True)
     is_vip = Column(Boolean, default=False)
     vip_expire_date = Column(DateTime, nullable=True)
     merit_points = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class VerificationCode(Base):
+    """验证码存储表"""
+    __tablename__ = "verification_codes"
+    id = Column(Integer, primary_key=True, index=True)
+    phone = Column(String, index=True)
+    code = Column(String)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    expires_at = Column(DateTime)  # 过期时间
+    used = Column(Boolean, default=False)  # 是否已使用
 
 class UserStat(Base):
     __tablename__ = "user_stats"
