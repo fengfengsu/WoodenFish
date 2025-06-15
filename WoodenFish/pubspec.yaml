@@ -1,0 +1,52 @@
+name: muyu_app
+description: 木鱼App - 现代化佛教修行工具
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # UI组件
+  cupertino_icons: ^1.0.2
+  
+  # 状态管理
+  provider: ^6.1.1
+  
+  # 本地存储
+  shared_preferences: ^2.2.2
+  
+  # 音频播放
+  audioplayers: ^5.2.1
+  
+  # 震动反馈
+  vibration: ^1.8.4
+  
+  # 时间处理
+  intl: ^0.18.1
+  
+  # 图表
+  fl_chart: ^0.66.0
+  
+  # 分享功能
+  share_plus: ^7.2.1
+  http: ^1.4.0
+  integration_test:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/sounds/
+    - assets/images/ 

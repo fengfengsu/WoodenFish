@@ -1,0 +1,9 @@
+# SF Pro Display Font Placeholder
+# 
+# This is a placeholder file for the SF Pro Display font.
+# In a real application, you would need to:
+# 1. Download the SF Pro Display font from Apple Developer Resources
+# 2. Replace this file with the actual .ttf font file
+# 3. Ensure you have proper licensing for the font
+#
+# For development purposes, the system will fall back to default fonts. 

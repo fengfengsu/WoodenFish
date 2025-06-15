@@ -1,0 +1,12 @@
+# 音效文件占位符
+# 
+# 此目录用于存放木鱼音效文件：
+# - sandalwood.mp3 (檀木音效)
+# - peachwood.mp3 (桃木音效)  
+# - rosewood.mp3 (红木音效)
+# - electronic.mp3 (电子音效)
+#
+# 背景音乐文件：
+# - meditation.mp3 (冥想音乐)
+# - nature.mp3 (自然音效)
+# - sutra.mp3 (经文音效) 
