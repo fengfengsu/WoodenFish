@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../providers/user_state.dart';
+import '../services/api_service.dart';
+import 'dart:io';
 
 /**
  * 登录屏幕
@@ -367,26 +370,36 @@ class _LoginScreenState extends State<LoginScreen> {
    * 构建第三方登录
    */
   Widget _buildThirdPartyLogin() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Column(
       children: [
-        _buildThirdPartyButton(
-          icon: Icons.apple,
-          label: 'Apple',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Apple登录功能即将推出')),
-            );
-          },
+        const Text(
+          '其他登录方式',
+          style: TextStyle(
+            color: Color(0xFF8B7355),
+            fontSize: 14,
+          ),
         ),
-        _buildThirdPartyButton(
-          icon: Icons.wechat,
-          label: '微信',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('微信登录功能即将推出')),
-            );
-          },
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (Platform.isIOS) ...[
+              _buildThirdPartyLoginButton(
+                icon: Icons.apple,
+                onPressed: _handleAppleSignIn,
+              ),
+              const SizedBox(width: 40),
+            ],
+            _buildThirdPartyLoginButton(
+              icon: Icons.chat_bubble_outline, // Placeholder for WeChat
+              onPressed: () {
+                // TODO: Implement WeChat Login
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('微信登录暂未开放')),
+                );
+              },
+            ),
+          ],
         ),
       ],
     );
@@ -395,41 +408,26 @@ class _LoginScreenState extends State<LoginScreen> {
   /**
    * 构建第三方登录按钮
    */
-  Widget _buildThirdPartyButton({
+  Widget _buildThirdPartyLoginButton({
     required IconData icon,
-    required String label,
-    required VoidCallback onTap,
+    required VoidCallback onPressed,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onPressed,
       child: Container(
-        width: 120,
+        width: 50,
         height: 50,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(25),
           border: Border.all(
             color: Colors.grey.withOpacity(0.3),
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 20,
-              color: const Color(0xFF1C1C1E),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF1C1C1E),
-              ),
-            ),
-          ],
+        child: Icon(
+          icon,
+          size: 20,
+          color: const Color(0xFF1C1C1E),
         ),
       ),
     );
@@ -575,6 +573,65 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('登录失败: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  /// 处理Apple登录
+  Future<void> _handleAppleSignIn() async {
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        webAuthenticationOptions: WebAuthenticationOptions(
+          clientId:
+              'cn.qingbeiren.services', // Your Service ID, created on Apple Developer portal
+          redirectUri: Uri.parse(
+            'https://api.qingbeiren.cn/callbacks/apple_sign_in', // Your redirect URI
+          ),
+        ),
+      );
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      final apiService = ApiService();
+      final user = await apiService.loginWithApple(
+        identityToken: credential.identityToken!,
+        authorizationCode: credential.authorizationCode!,
+        fullName: '${credential.givenName ?? ''} ${credential.familyName ?? ''}'
+            .trim(),
+        email: credential.email,
+      );
+
+      if (mounted) {
+        if (user != null) {
+          Provider.of<UserState>(context, listen: false).login(
+            user['id'].toString(),
+            user['username'],
+            avatar: user['avatar'],
+          );
+          Navigator.of(context).pop(); // 返回上一页
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Apple登录失败，请稍后重试')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Apple登录错误: $e')),
         );
       }
     } finally {

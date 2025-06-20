@@ -11,6 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  sign_in_with_apple: ^6.0.0
   
   # UI组件
   cupertino_icons: ^1.0.2
